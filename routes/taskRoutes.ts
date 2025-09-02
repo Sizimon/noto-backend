@@ -20,8 +20,8 @@ router.use(generalLimiter);
 // The "type" can be 'note'.
 router.post('/tasks', async (req: Request, res: Response): Promise<void> => {
     try {
-        const type = req.body;
-        console.log('Received task type:', type);
+        const requestBody = req.body;
+        console.log('Received task data:', requestBody);
 
         const userId = req.user?.id;
         console.log('User ID from request:', userId);
@@ -31,14 +31,28 @@ router.post('/tasks', async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        if (type.type === 'note') {
+        if (requestBody.type === 'note') {
+            // Original Noto frontend request - create empty note
             const noteResult = await pool.query(
                 'INSERT INTO notepads (title, content, user_id) VALUES ($1, $2, $3) RETURNING *',
                 ['Untitled Note', '', userId]
             );
             res.status(201).json(noteResult.rows[0]);
+        } else if (requestBody.title && requestBody.content) {
+            // Clip Curator request - create note with title and content
+            const { title, content } = requestBody;
+
+            const noteResult = await pool.query(
+                'INSERT INTO notepads (title, content, user_id) VALUES ($1, $2, $3) RETURNING *',
+                [title, content, userId]
+            );
+
+            res.status(201).json({
+                message: 'Task created successfully',
+                task: noteResult.rows[0]
+            });
         } else {
-            res.status(400).json({ error: 'Invalid task type' });
+            res.status(400).json({ error: 'Invalid request - missing type or title/content' });
             return;
         }
     } catch (error) {
@@ -362,7 +376,7 @@ router.delete('/tags/:tagId', async (req: Request, res: Response): Promise<void>
             res.status(404).json({ error: 'Tag not found' });
             return;
         }
-        
+
         res.status(200).json({ message: 'Tag deleted successfully' });
     } catch (error) {
         console.error('Error deleting tag:', error);
