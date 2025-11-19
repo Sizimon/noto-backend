@@ -16,7 +16,11 @@ const LoginAndRegisterLimiter = rateLimit({
     }
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || Math.random().toString(36).substring(7);
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+}
 
 const router = Router();
 

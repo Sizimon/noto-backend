@@ -13,7 +13,10 @@ const LoginAndRegisterLimiter = rateLimit({
         error: 'Too many login or registration attempts from this IP, please try again later.'
     }
 });
-const JWT_SECRET = process.env.JWT_SECRET || Math.random().toString(36).substring(7);
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+}
 const router = Router();
 // Endpoint to register & authenticate a new user
 router.post('/auth/register', LoginAndRegisterLimiter, async (req, res) => {
