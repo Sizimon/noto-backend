@@ -101,6 +101,26 @@ router.get('/tasks/fetch', async (req: Request, res: Response): Promise<void> =>
     }
 });
 
+router.get('/tasks/fetch/:id', async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user?.id;
+    const taskId = req.params.id;
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+    try {
+        const notepadResult = await pool.query(
+            'SELECT *, \'note\' as type FROM notepads WHERE user_id = $1 AND id = $2',
+            [userId, taskId]
+        )
+
+        res.status(200).json(notepadResult.rows[0]);
+    } catch (error) {
+        console.error('Error fetching task by ID:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Endpoint to edit a task
 // This endpoint expects a JSON body with fields to update.
 // It will update the task in the notepads table and return the updated task.
