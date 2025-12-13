@@ -7,8 +7,8 @@ pg.types.setTypeParser(20, val => Number(val)); // PSQL sends Bigints as strings
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.NOTO_DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
+    database: process.env.NOTO_DB_NAME,
+    password: process.env.NOTO_DB_PASSWORD,
     port: process.env.NOTO_DB_PORT ? Number(process.env.NOTO_DB_PORT) : 5432, // Default to 5432 if not set
 });
 
