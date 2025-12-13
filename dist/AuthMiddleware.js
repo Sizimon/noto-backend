@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET || Math.random().toString(36).substring(7);
+const JWT_SECRET = process.env.SECRET_KEY || Math.random().toString(36).substring(7);
 export function authMiddleware(req, res, next) {
     const token = req.cookies?.token;
     // console.error('Auth Header:', authHeader);
@@ -23,6 +23,6 @@ export function authMiddleware(req, res, next) {
         next();
     }
     catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
+        res.status(401).json({ error: 'Invalid or expired token' });
     }
 }
