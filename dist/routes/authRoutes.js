@@ -55,24 +55,33 @@ router.post('/auth/register', LoginAndRegisterLimiter, async (req, res) => {
 router.post('/auth/login', LoginAndRegisterLimiter, async (req, res) => {
     try {
         const { usernameOrEmail, password } = req.body;
+        console.log('Login attempt for:', usernameOrEmail); // Debug log
         const userQuery = await pool.query('SELECT * FROM users WHERE username = $1 OR email = $2', [usernameOrEmail, usernameOrEmail]);
         const user = userQuery.rows[0];
+        console.log('User found:', !!user); // Debug log
         if (!user) {
+            console.log('No user found in database'); // Debug log
             res.status(401).json({ error: 'Invalid username or email' });
             return;
         }
+        console.log('Comparing passwords...'); // Debug log
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        console.log('Password valid:', isPasswordValid); // Debug log
         if (!isPasswordValid) {
+            console.log('Password comparison failed'); // Debug log
             res.status(401).json({ error: 'Invalid password' });
             return;
         }
+        console.log('Creating JWT token...'); // Debug log
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
+        console.log('Token created successfully'); // Debug log
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
             sameSite: 'lax', // Or 'strict' for more security
             maxAge: 24 * 60 * 60 * 1000 // 24 hours
         });
+        console.log('Login successful for user:', user.username); // Debug log
         res.status(200).json({
             message: 'Authenticated',
         });
@@ -80,6 +89,17 @@ router.post('/auth/login', LoginAndRegisterLimiter, async (req, res) => {
     catch (error) {
         console.error('Error authenticating user:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// Test database connection endpoint
+router.get('/auth/test-db', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT COUNT(*) FROM users');
+        res.json({ userCount: result.rows[0].count, message: 'Database connected' });
+    }
+    catch (error) {
+        console.error('DB test failed:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 router.get('/auth/me', authMiddleware, LoginAndRegisterLimiter, async (req, res) => {
