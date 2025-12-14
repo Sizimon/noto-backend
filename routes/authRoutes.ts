@@ -122,17 +122,6 @@ router.post('/auth/login', LoginAndRegisterLimiter, async (req: Request, res: Re
     }
 });
 
-// Test database connection endpoint
-router.get('/auth/test-db', async (req: Request, res: Response): Promise<void> => {
-    try {
-        const result = await pool.query('SELECT COUNT(*) FROM users');
-        res.json({ userCount: result.rows[0].count, message: 'Database connected' });
-    } catch (error) {
-        console.error('DB test failed:', error);
-        res.status(500).json({ error: (error as Error).message });
-    }
-});
-
 router.get('/auth/me', authMiddleware, LoginAndRegisterLimiter, async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {

@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const JWT_SECRET = process.env.SECRET_KEY || Math.random().toString(36).substring(7);
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
     const token = req.cookies?.token;
@@ -12,6 +12,11 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
         res.status(401).json({ error: 'Authorization token is required' });
         return;
     }
+
+    if (!JWT_SECRET) {
+        throw new Error('JWT_SECRET is not defined in environment variables');
+    }
+    
     try {
         const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
         req.user = { id: decoded.userId };

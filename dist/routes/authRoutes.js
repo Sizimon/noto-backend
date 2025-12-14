@@ -91,17 +91,7 @@ router.post('/auth/login', LoginAndRegisterLimiter, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// Test database connection endpoint
-router.get('/auth/test-db', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT COUNT(*) FROM users');
-        res.json({ userCount: result.rows[0].count, message: 'Database connected' });
-    }
-    catch (error) {
-        console.error('DB test failed:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
+
 router.get('/auth/me', authMiddleware, LoginAndRegisterLimiter, async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
