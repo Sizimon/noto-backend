@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import pool from '../db/dbConnection.js';
 import { authMiddleware } from '../AuthMiddleware.js';
+import { metricMiddleware } from '../MetricMiddleware.js';
 
 dotenv.config();
 
@@ -16,13 +17,19 @@ const LoginAndRegisterLimiter = rateLimit({
     }
 });
 
+const metrics = metricMiddleware({
+    service: 'auth-service',
+    url: process.env.METRICS_URL || 'https://szymonsamus.dev/api/metrics'
+});
+
+const router = Router();
+router.use(metrics);
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
     throw new Error('JWT_SECRET is not defined in environment variables');
 }
-
-const router = Router();
 
 // Endpoint to register & authenticate a new user
 router.post('/auth/register', LoginAndRegisterLimiter, async (req: Request, res: Response): Promise<void> => {

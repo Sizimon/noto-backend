@@ -1,9 +1,15 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../AuthMiddleware.js';
+import { metricMiddleware } from '../MetricMiddleware.js';
 import pool from '../db/dbConnection.js';
 
-const router = Router();
+const metrics = metricMiddleware({
+    service: 'user-service',
+    url:'https://szymonsamus.dev/api/metrics'
+});
 
+const router = Router();
+router.use(metrics);
 router.use(authMiddleware);
 
 // Define your user-related routes here

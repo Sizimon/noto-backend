@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authMiddleware } from '../AuthMiddleware.js';
+import { metricMiddleware } from '../MetricMiddleware.js';
 import pool from '../db/dbConnection.js';
 
 const generalLimiter = rateLimit({
@@ -11,7 +12,13 @@ const generalLimiter = rateLimit({
     }
 });
 
+const metrics = metricMiddleware({
+    service: 'task-service',
+    url:'https://szymonsamus.dev/api/metrics'
+});
+
 const router = Router();
+router.use(metrics);
 router.use(authMiddleware);
 router.use(generalLimiter);
 
