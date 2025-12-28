@@ -18,7 +18,7 @@ const LoginAndRegisterLimiter = rateLimit({
 });
 
 const metrics = metricMiddleware({
-    service: 'auth-service',
+    service: 'noto-auth-service',
     url: process.env.METRICS_URL || 'https://szymonsamus.dev/api/metrics'
 });
 

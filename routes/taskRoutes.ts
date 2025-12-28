@@ -13,7 +13,7 @@ const generalLimiter = rateLimit({
 });
 
 const metrics = metricMiddleware({
-    service: 'task-service',
+    service: 'noto-task-service',
     url:'https://szymonsamus.dev/api/metrics'
 });
 

@@ -4,7 +4,7 @@ import { metricMiddleware } from '../MetricMiddleware.js';
 import pool from '../db/dbConnection.js';
 
 const metrics = metricMiddleware({
-    service: 'user-service',
+    service: 'noto-user-service',
     url:'https://szymonsamus.dev/api/metrics'
 });
 
